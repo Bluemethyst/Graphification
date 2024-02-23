@@ -11,16 +11,16 @@ class Utils(commands.Cog):
         self.bot = bot
 
     # PING
-    @nextcord.slash_command(name="ping", description="Check the bots latencys")
+    @nextcord.slash_command(name="ping", description="Check the bots latency")
     async def ping(self, interaction: nextcord.Interaction):
         latency = round(self.bot.latency * 1000, 0)
         embed = nextcord.Embed(title=f"Latency: {latency}MS", color=0x3346D1)
         await interaction.response.send_message(embed=embed)
         info(command="Ping", interaction=interaction)
 
+    # INFO
     @nextcord.slash_command(description="Get information about the bot")
     async def info(self, interaction: nextcord.Interaction):
-
         cpu_info = cpuinfo.get_cpu_info()
         cpu_name = cpu_info["brand_raw"]
         python_version = cpu_info["python_version"]

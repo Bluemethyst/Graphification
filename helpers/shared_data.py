@@ -1,4 +1,5 @@
 # File for data that needs to be shared between multiple files so we dont end up with circular import errors
+# Create a new function under the SharedData class and utilize where needed
 
 
 class SharedData:

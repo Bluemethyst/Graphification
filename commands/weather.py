@@ -9,7 +9,7 @@ class Weather(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Weather
+    # WEATHER
     @nextcord.slash_command(
         description="Get the weather forecast for the next 24 hours"
     )
