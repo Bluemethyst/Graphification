@@ -1,10 +1,15 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import io
 
 
-def graph(title: str, data: list[float]):
-    x_values = list(range(1, len(data) + 1))
-    plt.plot(x_values, data)
+def graph(xdata, ydata):
+    mpl.rcParams["savefig.pad_inches"] = 0
+
+    ax = plt.axes((0, 0, 1, 1), frameon=False)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    plt.autoscale(tight=True)
 
     plt.xlabel("Data Points")
     plt.ylabel("Values")
