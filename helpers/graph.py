@@ -2,6 +2,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import io
 
+def format_y_tick(value, pos):
+    return f'{value}c'
 
 def weather_graph(timestamps, ydata):
     mpl.rcParams['savefig.pad_inches'] = 0
