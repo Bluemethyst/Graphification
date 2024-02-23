@@ -19,7 +19,7 @@ class Weather(commands.Cog):
         temperature_2m = data["hourly"]["temperature_2m"]
         timestamps = data["hourly"]["time"]
 
-        image = graph.graph(timestamps, temperature_2m)
+        image = graph.weather_graph(timestamps, temperature_2m)
 
         embed = nextcord.Embed(title=f"Temperature data", color=0x3346D1)
         embed.set_image(url="attachment://file.png")

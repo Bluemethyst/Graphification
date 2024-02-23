@@ -2,16 +2,30 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import io
 
-def graph(xdata, ydata):
+def format_y_tick(value, pos):
+    return f'{value}c'
+
+def weather_graph(timestamps, ydata):
     mpl.rcParams['savefig.pad_inches'] = 0
-
-    ax = plt.axes((0, 0, 1, 1), frameon=False)
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
+    ax = plt.axes()
     plt.autoscale(tight=True)
+    plt.ylim(min(ydata) - 1, max(ydata) + 1)
 
-    # Plot the data.
-    plt.plot(ydata)
+    ax.plot(timestamps, ydata)
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('white')  # Set color of left spine
+    ax.spines['bottom'].set_color('white')  # Set color of bottom spine
+
+    # Show only ticks on the left and bottom spines
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(format_y_tick))
 
     img_bytes = io.BytesIO()
     plt.savefig(img_bytes, format='png', transparent=True)
