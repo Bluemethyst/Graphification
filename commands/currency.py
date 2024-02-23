@@ -1,52 +1,52 @@
 import nextcord
 import httpx
-import dotenv
-import os
-import json
-import matplotlib.pyplot as plt
 import io
-from helpers import graph
-from loggerthyst import info, warn, error, fatal
+import time
+import matplotlib.pyplot as plt
 from nextcord.ext import commands
-from PIL import Image
+from loggerthyst import info
 
 
 class Currency(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # PING
     @nextcord.slash_command(name="currency", description="Search for currency history")
     async def currency(
-        self, interaction: nextcord.Interaction, year: int, month: int, day: int
+        self,
+        interaction: nextcord.Interaction,
+        from_date: str,
+        to_date: str,
+        currency: str,
     ):
-        if month < 10 and day < 10:
-            url = f"https://api.frankfurter.app/{year}-0{month}-0{day}?from=USD"
-        elif month < 10:
-            url = f"https://api.frankfurter.app/{year}-0{month}-{day}?from=USD"
-        elif day < 10:
-            url = f"https://api.frankfurter.app/{year}-{month}-0{day}?from=USD"
-        print(url)
-        data = httpx.get(url)
-        print(data.text)
-        data_json = data.json()
-        rates = data_json["rates"]
-        currencies = list(rates.keys())
-        values = list(rates.values())
+        start_time = time.perf_counter()
+        url = f"https://api.frankfurter.app/{from_date}..{to_date}?from=USD"
+        await interaction.response.defer()
+        data = httpx.get(url).json()
+        currency = currency.upper()
+        rates = [data["rates"][date][currency] for date in data["rates"]]
+
         plt.figure(figsize=(10, 5))
-        plt.bar(currencies, values)
-        plt.title("Currency Rates on " + data_json["date"])
-        plt.xlabel("Currency")
-        plt.ylabel("Rate")
-        plt.xticks(rotation=45)
+        plt.plot(list(data["rates"].keys()), rates, marker="o")
+        plt.title(
+            f"{currency} Rate Change from {from_date} to {to_date} compared to USD"
+        )
+        plt.xlabel("Date")
+        plt.ylabel(f"{currency} Rate")
+        plt.grid(True)
+
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
         buf.seek(0)
-        image_file = nextcord.File(fp=buf, filename="currency_rates.png")
-        embed = nextcord.Embed(
-            title=f"Currency Rates on {data_json['date']}", color=0x3346D1
-        )
-        embed.set_image(url="attachment://currency_rates.png")
-        await interaction.response.send_message(embed=embed, file=image_file)
 
+        image_file = nextcord.File(fp=buf, filename="currency_rate_change.png")
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        embed = nextcord.Embed(
+            title=f"{currency} Rate Change from {from_date} to {to_date}",
+            color=0x3346D1,
+        )
+        embed.set_footer(text=f"{elapsed_time}")
+        embed.set_image(url="attachment://currency_rate_change.png")
+        await interaction.followup.send(embed=embed, file=image_file)
         info(command="Currency", interaction=interaction)
