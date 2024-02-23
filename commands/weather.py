@@ -10,7 +10,7 @@ class Weather(commands.Cog):
 
     # Weather
     @nextcord.slash_command(description="Get the latency from the bot to Discords servers")
-    async def weather(self, interaction: nextcord.Interaction, lat: int = 40.9006, long: int = 174.8860):
+    async def weather(self, interaction: nextcord.Interaction, lat: float = 40.9006, long: float = 174.8860):
         # fetch api stuff
         raw = httpx.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&hourly=temperature_2m&timezone=Pacific%2FAuckland&forecast_days=14")
         data = raw.json()
