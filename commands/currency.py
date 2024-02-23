@@ -4,7 +4,7 @@ import io
 import time
 import matplotlib.pyplot as plt
 from nextcord.ext import commands
-from loggerthyst import info
+from loggerthyst import info, warn, error, fatal
 
 
 class Currency(commands.Cog):
@@ -19,13 +19,16 @@ class Currency(commands.Cog):
         to_date: str,
         currency: str,
     ):
+        # Start timer
         start_time = time.perf_counter()
+        # Collect data
         url = f"https://api.frankfurter.app/{from_date}..{to_date}?from=USD"
         await interaction.response.defer()
         data = httpx.get(url).json()
         currency = currency.upper()
+        # Create data array/list for graph to use
         rates = [data["rates"][date][currency] for date in data["rates"]]
-
+        # Create the graph
         plt.figure(figsize=(10, 5))
         plt.plot(list(data["rates"].keys()), rates, marker="o")
         plt.title(
@@ -34,11 +37,11 @@ class Currency(commands.Cog):
         plt.xlabel("Date")
         plt.ylabel(f"{currency} Rate")
         plt.grid(True)
-
+        # Convert the graphs bytes into a png
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
         buf.seek(0)
-
+        # Attach png as attachment and send
         image_file = nextcord.File(fp=buf, filename="currency_rate_change.png")
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
