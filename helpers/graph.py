@@ -10,10 +10,10 @@ def graph(title: str, data: list[float]):
 
     plt.title(title)
 
-    image = io.BytesIO()
-    plt.savefig(image, format='png')
-    image.seek(0)
+    img_bytes = io.BytesIO()
+    plt.savefig(img_bytes, format='png')
+    img_bytes.seek(0)
 
     plt.clf()
 
-    return image
+    return img_bytes

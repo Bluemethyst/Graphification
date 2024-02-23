@@ -17,10 +17,11 @@ class Weather(commands.Cog):
         data = raw.json()
 
         temperature_2m = data["hourly"]["temperature_2m"]
-        image = graph.graph("tewmperwaturwe", temperature_2m)
+        image_name = graph.graph("tewmperwaturwe", temperature_2m)
+        image = nextcord.File(image_name)
 
         embed = nextcord.Embed(title=f"Temperature data", color=0x3346D1)
-        embed.set_image(nextcord.File(image))
-        await interaction.response.send_message(embed=embed)
+        embed.set_image(url="attachment://file.png")
 
+        await interaction.response.send_message(embed=embed, file=nextcord.File(img_bytes, filename='file.png'))
         info(command="Weather", interaction=interaction)
