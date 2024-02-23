@@ -1,5 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from datetime import datetime
 import io
 
 def format_y_tick(value, pos):
@@ -18,12 +20,10 @@ def weather_graph(timestamps, ydata):
     ax.spines['left'].set_color('white')  # Set color of left spine
     ax.spines['bottom'].set_color('white')  # Set color of bottom spine
 
-    # Show only ticks on the left and bottom spines
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
-
     ax.tick_params(axis='x', colors='white')
     ax.tick_params(axis='y', colors='white')
+
+    plt.xticks(ticks=timestamps, labels=[datetime.strptime(ts, "%Y-%m-%dT%H:%M").strftime("%b %d") if index % 24 == 0 else None for index, ts in enumerate(timestamps)], rotation=45)
 
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(format_y_tick))
 
