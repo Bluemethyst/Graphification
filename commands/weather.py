@@ -19,7 +19,8 @@ class Weather(commands.Cog):
         temperature_2m = data["hourly"]["temperature_2m"]
         image = graph.graph("tewmperwaturwe", temperature_2m)
 
-        embed = nextcord.Embed(title=f"Temperature data", image=image, color=0x3346D1)
+        embed = nextcord.Embed(title=f"Temperature data", color=0x3346D1)
+        embed.set_image(nextcord.File(image))
         await interaction.response.send_message(embed=embed)
 
         info(command="Weather", interaction=interaction)
