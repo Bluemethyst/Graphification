@@ -1,12 +1,14 @@
 import dotenv
 import os
 import nextcord
+from commands.utils import Utils
 from loggerthyst import error, info, fatal, warn
 from nextcord.ext import commands
 
-
-bot = commands.Bot()
 dotenv.load_dotenv()
+intents = nextcord.Intents.all()
+bot = commands.Bot(intents=intents)
+bot.add_cog(Utils(bot))
 
 
 @bot.event
