@@ -11,12 +11,12 @@ class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         dotenv.load_dotenv()
-        sgdb = SteamGridDB(os.getenv("STEAM_GRID_API"))
+        self.sgdb = SteamGridDB(os.getenv("STEAM_GRID_API"))
 
     # PING
-    @nextcord.slash_command(name="ping", description="Check the bots latencys")
-    async def ping(self, interaction: nextcord.Interaction):
-        latency = round(self.bot.latency * 1000, 0)
-        embed = nextcord.Embed(title=f"Latency: {latency}MS", color=0x3346D1)
+    @nextcord.slash_command(name="game", description="Check the bots latencys")
+    async def game(self, interaction: nextcord.Interaction, game):
+        result = self.sgdb.search_game(game)
+        embed = nextcord.Embed(title=f"Result: {result}", color=0x3346D1)
         await interaction.response.send_message(embed=embed)
-        info(command="Ping", interaction=interaction)
+        info(command="Game", interaction=interaction)
