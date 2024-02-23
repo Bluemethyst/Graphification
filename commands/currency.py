@@ -46,7 +46,7 @@ class Currency(commands.Cog):
             title=f"{currency} Rate Change from {from_date} to {to_date}",
             color=0x3346D1,
         )
-        embed.set_footer(text=f"{elapsed_time}")
+        embed.set_footer(text=f"Took {round(elapsed_time, 3)} seconds to render")
         embed.set_image(url="attachment://currency_rate_change.png")
         await interaction.followup.send(embed=embed, file=image_file)
         info(command="Currency", interaction=interaction)
