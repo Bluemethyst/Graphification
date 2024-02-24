@@ -30,7 +30,7 @@ class Weather(commands.Cog):
         snowfall = data["hourly"]["snowfall"]
         elevation = data["elevation"]
 
-        image = graph.weather_graph(timestamps, temperature, humidity, dewpoint, rainfall)
+        image = graph.hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint, humidity, precipitation, rainfall, showers, snowfall)
 
         embed = nextcord.Embed(title=f"24-hour forecast", description="Data pulled from `open-meteo.com`", color=0x3346D1)
         embed.add_field(name="Latitude", value=f"{lat}° S", inline=True)
