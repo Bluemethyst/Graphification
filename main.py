@@ -25,6 +25,11 @@ bot.add_cog(Currency(bot))
 @bot.event
 async def on_ready():
     info(f"Logged in as {bot.user}")
+    await bot.change_presence(
+        activity=nextcord.Activity(
+            type=nextcord.ActivityType.watching, name="the numbers 📈"
+        )
+    )
     shared_data = SharedData()
     # Set the start time of the bot
     shared_data.set_bot_start_time(datetime.datetime.now())

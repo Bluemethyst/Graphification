@@ -21,11 +21,17 @@ class Currency(commands.Cog):
         currency: str,
     ):
         # Start timer
+        if currency.upper() == "USD":
+            await interaction.response.send_message(
+                "Unfortunately you cannot view the history of USD as it is used as a baseline for comparing other currencies."
+            )
+            return
         start_time = time.perf_counter()
         # Collect data
         url = f"https://api.frankfurter.app/{from_date}..{to_date}?from=USD"
         await interaction.response.defer()
-        data = httpx.get(url).json()
+        r = httpx.get(url)
+        data = r.json()
         currency = currency.upper()
         # Create data array/list for graph to use
         rates = [data["rates"][date][currency] for date in data["rates"]]
@@ -47,7 +53,7 @@ class Currency(commands.Cog):
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
         embed = nextcord.Embed(
-            title=f"{currency} Rate Change from {from_date} to {to_date}",
+            title=f"{currency} Rate Change from {from_date} to {to_date} compared to USD",
             color=0x3346D1,
         )
         embed.set_footer(text=f"Took {round(elapsed_time, 3)} seconds to render")
