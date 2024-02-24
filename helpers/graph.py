@@ -1,7 +1,10 @@
+# @formatter:off
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from datetime import datetime
+from helpers import images
+import numpy as np
 import math
 import io
 
@@ -9,7 +12,7 @@ import io
 def template_graph(x_axis, y_axis):
     mpl.rcParams['savefig.pad_inches'] = 0  # Remove 0.1in border around graph
     plt.figure(figsize=(6.4, 4.8))  # Set the size of the graph (in inches - width x height)
-    ax = plt.axes(frameon=False)  # Initialize axis
+    ax = plt.axes()  # Initialize axis
     plt.autoscale(tight=True)  # Enable tight autoscaling
     plt.ylim(0, 100)  # Lock the Y axis between 2 values (not necessary)
     plt.grid(color='gray', linestyle='-', linewidth=0.5, alpha=0.5)  # Set up a light grey grid behind the data
@@ -52,10 +55,14 @@ def format_y_tick(value, pos):
 def hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint, humidity, precipitation, rainfall, showers, snowfall):
     # Temperature graph
     mpl.rcParams['savefig.pad_inches'] = 0  # Remove 0.1in border around graph
-    plt.figure(figsize=(6.4, 3.2))  # Set the size of the graph (in inches - width x height)
-    temp_ax = plt.axes(frameon=False)  # Temperature axis
+    plt.figure(figsize=(6.4, 2))
+
+    temp_range = max(max(temperature), max(apparent_temperature), max(dewpoint)) - min(min(temperature), min(apparent_temperature), min(dewpoint))
+    temp_increment = math.ceil(temp_range / 4)
+
+    temp_ax = plt.axes()  # Temperature axis
     plt.autoscale(tight=True)  # Enable tight autoscaling
-    plt.ylim(math.floor(min(min(temperature), min(apparent_temperature), min(dewpoint)) / 5) * 5, math.ceil(max(max(temperature), max(apparent_temperature), max(dewpoint)) / 5) * 5)
+    plt.ylim(math.floor(min(min(temperature), min(apparent_temperature), min(dewpoint)) / temp_increment) * temp_increment, math.ceil(max(max(temperature), max(apparent_temperature), max(dewpoint)) / temp_increment) * temp_increment)
     plt.grid(color='gray', linestyle='-', linewidth=0.5, alpha=0.5)  # Set up a light grey grid behind the data
 
     temp_ax.plot(timestamps, temperature, 'o-', label="Temperature")
@@ -72,8 +79,10 @@ def hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint
     temp_ax.tick_params(axis='y', colors='white')
 
     plt.xticks(ticks=timestamps, labels=[datetime.strptime(ts, "%Y-%m-%dT%H:%M").strftime("%H:%M") for index, ts in enumerate(timestamps)], rotation=45)
-    plt.yticks(range(math.floor(min(min(temperature), min(apparent_temperature), min(dewpoint)) / 5) * 5, math.ceil(max(max(temperature), max(apparent_temperature), max(dewpoint)) / 5) * 5 + 1, 5))
+    plt.yticks(range(math.floor(min(min(temperature), min(apparent_temperature), min(dewpoint)) / temp_increment) * temp_increment, math.ceil(max(max(temperature), max(apparent_temperature), max(dewpoint)) / temp_increment) * temp_increment + 1, temp_increment))
     temp_ax.xaxis.set_major_locator(plt.MaxNLocator(12))
+
+    plt.tight_layout()
 
     temp_graph = io.BytesIO()
     plt.savefig(temp_graph, format='png', transparent=True)
@@ -81,4 +90,110 @@ def hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint
 
     plt.clf()
 
-    return temp_graph
+    # Humidity graph
+    humidity_range = max(humidity) - min(humidity)
+    humidity_increment = math.ceil(humidity_range / 4)
+
+    humid_ax = plt.axes()  # Temperature axis
+    plt.autoscale(tight=True)  # Enable tight autoscaling
+    plt.ylim(math.floor(min(humidity) / humidity_increment) * humidity_increment, math.ceil(max(humidity) / humidity_increment) * humidity_increment)
+    plt.grid(color='gray', linestyle='-', linewidth=0.5, alpha=0.5)  # Set up a light grey grid behind the data
+
+    humid_ax.plot(timestamps, humidity, 'o-', label="Humidity")
+    humid_ax.legend()
+
+    humid_ax.spines['top'].set_visible(False)
+    humid_ax.spines['right'].set_visible(False)
+    humid_ax.spines['left'].set_color('white')  # Set color of left spine
+    humid_ax.spines['bottom'].set_color('white')  # Set color of bottom spine
+
+    humid_ax.tick_params(axis='x', colors='white')
+    humid_ax.tick_params(axis='y', colors='white')
+
+    plt.xticks(ticks=timestamps, labels=[datetime.strptime(ts, "%Y-%m-%dT%H:%M").strftime("%H:%M") for index, ts in enumerate(timestamps)], rotation=45)
+    plt.yticks(range(math.floor(min(humidity) / humidity_increment) * humidity_increment, math.ceil(max(humidity) / humidity_increment) * humidity_increment + 1, humidity_increment))
+    humid_ax.xaxis.set_major_locator(plt.MaxNLocator(12))
+
+    plt.tight_layout()
+
+    humidity_graph = io.BytesIO()
+    plt.savefig(humidity_graph, format='png', transparent=True)
+    humidity_graph.seek(0)
+
+    plt.clf()
+
+    # Precipitation graph
+    precip_range = max(precipitation) * 1.1
+    precip_increment = math.ceil(precip_range / 4) if math.ceil(precip_range / 4) else 1
+
+    plt.figure(figsize=(6.4, 2))
+    plt.autoscale(tight=True)  # Enable tight autoscaling
+    plt.ylim(0, max(math.ceil(max(precipitation) / precip_increment) * precip_increment * 1.1, 1))
+
+    plt.bar(timestamps, snowfall, label='Snowfall', color='white')
+    plt.bar(timestamps, showers, bottom=snowfall, label='Showers', color='#97d1cd')
+    plt.bar(timestamps, rainfall, bottom=np.array(showers) + np.array(snowfall), label='Rainfall', color='#6b6787')
+
+    for hour, precip in zip(timestamps, precipitation):
+        plt.text(hour, precip, str(precip) if precip > 0 else '0', ha='center', va='bottom', color='white', fontsize='8')
+
+    plt.legend()
+
+    ax = plt.gca()
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('white')  # Set color of left spine
+    ax.spines['bottom'].set_color('white')  # Set color of bottom spine
+
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+
+    plt.xticks(ticks=timestamps, labels=[datetime.strptime(ts, "%Y-%m-%dT%H:%M").strftime("%H:%M") for index, ts in enumerate(timestamps)], rotation=45)
+    plt.yticks(range(0, math.ceil(max(precipitation) / precip_increment) * precip_increment + 1, precip_increment))
+    humid_ax.xaxis.set_major_locator(plt.MaxNLocator(12))
+
+    plt.tight_layout()
+
+    precipitation_graph = io.BytesIO()
+    plt.savefig(precipitation_graph, format='png', transparent=True)
+    precipitation_graph.seek(0)
+
+    return temp_graph, humidity_graph, precipitation_graph
+
+
+def weather_graph_backup(timestamps, temperature, humidity, dewpoint, rainfall):
+    mpl.rcParams['savefig.pad_inches'] = 0
+    ax = plt.axes()
+    plt.autoscale(tight=True)
+    plt.ylim(0, 100)
+    plt.grid(color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
+
+    ax.plot(timestamps, temperature, 'o-', label="Temperature (°C)")
+    ax.plot(timestamps, humidity, 'o-', label="Humidity (%)")
+    ax.plot(timestamps, dewpoint, 'o-', label="Dew point (°C)")
+    ax.plot(timestamps, rainfall, 'o-', label="Rainfall (mm)")
+
+    ax.legend()
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('white')  # Set color of left spine
+    ax.spines['bottom'].set_color('white')  # Set color of bottom spine
+
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+
+    plt.xticks(ticks=timestamps, labels=[datetime.strptime(ts, "%Y-%m-%dT%H:%M").strftime("%H:%M") for index, ts in enumerate(timestamps)], rotation=45)
+    plt.yticks(range(0, 101, 10))
+
+    ax.xaxis.set_major_locator(plt.MaxNLocator(12))
+    # ax.yaxis.set_major_formatter(ticker.FuncFormatter(format_y_tick))
+
+    img_bytes = io.BytesIO()
+    plt.savefig(img_bytes, format='png', transparent=True)
+    img_bytes.seek(0)
+
+    plt.clf()
+
+    return img_bytes

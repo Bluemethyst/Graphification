@@ -30,13 +30,20 @@ class Weather(commands.Cog):
         snowfall = data["hourly"]["snowfall"]
         elevation = data["elevation"]
 
-        image = graph.hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint, humidity, precipitation, rainfall, showers, snowfall)
+        t_image, h_image, p_image = graph.hourly_weather_graph(timestamps, temperature, apparent_temperature, dewpoint, humidity, precipitation, rainfall, showers, snowfall)
+        # image = graph.weather_graph(timestamps, temperature, apparent_temperature, dewpoint, rainfall)
 
         embed = nextcord.Embed(title=f"24-hour forecast", description="Data pulled from `open-meteo.com`", color=0x3346D1)
         embed.add_field(name="Latitude", value=f"{lat}° S", inline=True)
         embed.add_field(name="Longitude", value=f"{long}° E", inline=True)
         embed.add_field(name="Elevation", value=f"{elevation}m", inline=True)
-        embed.set_image(url="attachment://file.png")
 
-        await interaction.followup.send(embed=embed, file=nextcord.File(image, filename="file.png"))
+        temp = nextcord.Embed(color=0x3346D1)
+        temp.set_image("attachment://temp.png")
+        humid = nextcord.Embed(color=0x3346D1)
+        humid.set_image("attachment://humid.png")
+        precip = nextcord.Embed(color=0x3346D1)
+        precip.set_image("attachment://precip.png")
+
+        await interaction.followup.send(embeds=(embed, temp, humid, precip), files=(nextcord.File(t_image, filename="temp.png"), nextcord.File(h_image, filename="humid.png"), nextcord.File(p_image, filename="precip.png")))
         info(command="Weather", interaction=interaction)
